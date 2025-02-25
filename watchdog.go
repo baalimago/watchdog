@@ -31,3 +31,12 @@ func (w *Watchdog) Kick() error {
 	}
 	return nil
 }
+
+// KickWithUpdate resets the watchdog timer to a new duration and restarts the countdown.
+// Will return an error if attempting to kick an inactive watchdog,
+// i.e., a watchdog which has already executed its callback or has been stopped.
+// `newDuration` specifies the new time duration to use for the watchdog.
+func (w *Watchdog) KickWithUpdate(newDuration time.Duration) error {
+	w.d = newDuration
+	return w.Kick()
+}
