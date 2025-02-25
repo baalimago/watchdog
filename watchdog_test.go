@@ -9,7 +9,7 @@ import (
 	"github.com/baalimago/watchdog"
 )
 
-func Test_noKick(t *testing.T) {
+func Test_noPet(t *testing.T) {
 	t.Run("it should call cb after duration", func(t0 *testing.T) {
 		timeout := time.Millisecond * 10
 		testTimeoutCtx, cancel := context.WithTimeout(context.Background(), timeout*2)
@@ -29,8 +29,8 @@ func Test_noKick(t *testing.T) {
 	})
 }
 
-func Test_Kick(t *testing.T) {
-	t.Run("it shouldn't call cb if kicked", func(t0 *testing.T) {
+func Test_Pet(t *testing.T) {
+	t.Run("it shouldn't call cb if peted", func(t0 *testing.T) {
 		timeout := time.Millisecond * 10
 		testTimeoutCtx, cancel := context.WithTimeout(context.Background(), timeout*2)
 		defer cancel()
@@ -38,11 +38,11 @@ func Test_Kick(t *testing.T) {
 
 		cbCalled := make(chan struct{})
 
-		awaitKickRoutine := sync.WaitGroup{}
-		awaitKickRoutine.Add(1)
-		// Anonymous routine which kicks the watchdog 4 times more often than timeout duration
+		awaitPetRoutine := sync.WaitGroup{}
+		awaitPetRoutine.Add(1)
+		// Anonymous routine which pets the watchdog 4 times more often than timeout duration
 		go func() {
-			awaitKickRoutine.Done()
+			awaitPetRoutine.Done()
 			t := time.NewTicker(timeout / 4)
 			for {
 				select {
@@ -50,15 +50,15 @@ func Test_Kick(t *testing.T) {
 					// Non related, just to cleanup
 					t.Stop()
 				case <-t.C:
-					err := w.Kick()
+					err := w.Pet()
 					if err != nil {
-						t0.Errorf("failed to kick: %v", err)
+						t0.Errorf("failed to pet: %v", err)
 					}
 				}
 			}
 		}()
 
-		awaitKickRoutine.Wait()
+		awaitPetRoutine.Wait()
 		w = watchdog.New(timeout, func() {
 			close(cbCalled)
 		})
@@ -105,8 +105,8 @@ func Test_Stop(t *testing.T) {
 	})
 }
 
-func Test_KickWithUpdate(t *testing.T) {
-	t.Run("it should update duration and not call cb if kicked", func(t0 *testing.T) {
+func Test_PetWithUpdate(t *testing.T) {
+	t.Run("it should update duration and not call cb if peted", func(t0 *testing.T) {
 		initialTimeout := time.Millisecond * 10
 		updatedTimeout := time.Millisecond * 20
 		testTimeoutCtx, cancel := context.WithTimeout(context.Background(), updatedTimeout*2)
@@ -115,11 +115,11 @@ func Test_KickWithUpdate(t *testing.T) {
 
 		cbCalled := make(chan struct{})
 
-		awaitKickRoutine := sync.WaitGroup{}
-		awaitKickRoutine.Add(1)
-		// Anonymous routine which kicks the watchdog 4 times more often than updatedTimeout duration
+		awaitPetRoutine := sync.WaitGroup{}
+		awaitPetRoutine.Add(1)
+		// Anonymous routine which pets the watchdog 4 times more often than updatedTimeout duration
 		go func() {
-			awaitKickRoutine.Done()
+			awaitPetRoutine.Done()
 			t := time.NewTicker(updatedTimeout / 4)
 			for {
 				select {
@@ -127,15 +127,15 @@ func Test_KickWithUpdate(t *testing.T) {
 					// Non related, just to cleanup
 					t.Stop()
 				case <-t.C:
-					err := w.KickWithUpdate(updatedTimeout)
+					err := w.PetWithUpdate(updatedTimeout)
 					if err != nil {
-						t0.Errorf("failed to kick: %v", err)
+						t0.Errorf("failed to pet: %v", err)
 					}
 				}
 			}
 		}()
 
-		awaitKickRoutine.Wait()
+		awaitPetRoutine.Wait()
 		w = watchdog.New(initialTimeout, func() {
 			close(cbCalled)
 		})
